@@ -54,7 +54,7 @@ We are using here **BeagleBone Black**.
 * HDMI
 * GPIOs, UARTs, SPI, I2C, Ethernet, USB ... 
 
-#### PinOut
+#### PinOut - sơ đồ chân
 
 https://vadl.github.io/images/bbb/bbb_headers.png
 
@@ -79,8 +79,8 @@ https://beagleboard.org/black
 #### Install required packages
 
 ```bash
-sudo apt install gawk wget git diffstat unzip texinfo gcc build-essential chrpath socat cpio python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev pylint3 xterm python3-subunit mesa-common-dev zstd liblz4-tool
-
+sudo apt install gawk wget git diffstat unzip texinfo gcc build-essential chrpath socat cpio python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev python3-subunit mesa-common-dev zstd liblz4-tool file locales libacl1
+sudo locale-gen en_US.UTF-8
 ```
 
 Reference: https://docs.yoctoproject.org/4.0.7/brief-yoctoprojectqs/index.html#build-host-packages
@@ -101,6 +101,8 @@ Create a project folder and clone the poky in it.
 mkdir yocto_tutorial
 cd yocto_tutorial
 git clone git://git.yoctoproject.org/poky -b kirkstone
+
+git clone https://github.com/yoctoproject/poky.git -b kirkstone # nên dùng cái này cho nhanh
 ```
 
 #### Initialize Build Environment
@@ -122,17 +124,32 @@ From build folder run the following command
 mkdir ../../sources
 ```
 
-####  Make Changes in local.conf
+####  Make Changes in /poky/build/conf/local.conf
 
 * Change Machine
+  - comment MACHINE ??= "qemux86-64" in line 38
+  - uncomment MACHINE ?= "beaglebone-yocto" line 32
 
-* Change source path
+  ![alt text](image-1.png)
+
+* Change source path copy to line 79 file local.conf
+
+```
+  SOURCES = "/home/minhvo/DATA/yocto_tutorial/sources"
+  DL_DIR ?= "${SOURCES}/downloads"
+  SSTATE_DIR ?= "${SOURCES}/sstate-cache"
+  TMPDIR = "${SOURCES}/tmp"
+```
+
+![alt text](image-2.png)
 
 * Set following
 
 * * RM_OLD_IMAGE = "1"
 
   * INHERIT += "rm_work"
+
+![alt text](image.png)
 
 * Save
 
@@ -143,7 +160,7 @@ We will discuss the content of **local.conf** file  in another chapter.
 Execute the following command from build folder
 
 ```bash
-bibake core-image-full-cmdline
+bitbake core-image-full-cmdline
 ```
 
 This will take a while, depending upon the Image and the specs of your system and the Internet connection.
@@ -167,3 +184,14 @@ Here is our Image : **core-image-full-cmdline-beaglebone-yocto.wic**
 ### End
 
 In the next chapter I will show you how to flash the Image in beaglenone black and how to boot it.
+
+
+Khi bị lỗi 
+
+![alt text](image-3.png)
+
+```
+rm -rf bitbake.lock
+```
+
+.wic là file quan trọng nhất để flash vào hệ thống nằm trong đường dẫn sources/tmp/deploy/images/beaglebone-yocto
